@@ -1,0 +1,30 @@
+body{
+    background-color: azure;
+}
+
+h1{
+    text-align: center;
+    font-size: 3rem;
+}
+
+#description{
+    color:darkslategray;
+    margin: 10px 100px 40px;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+div{
+    text-align: center;
+}
+
+input{
+    font-size:1.5rem;
+    width: 50%;
+    height:5rem;
+    text-align: center;
+}
+
+button{
+    margin: 20px;
+}
