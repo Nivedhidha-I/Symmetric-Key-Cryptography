@@ -90,7 +90,21 @@ def rail_fence_cipher (text, method, key):
     return [str(key), result]
 
 def permutation_cipher (text, method, block_size, key):
-    pass
+    result = ''
+    if method == "Encrypt":
+        for t in range(0, len(text), block_size):
+            c_block = text[t: (t + block_size)]
+            for cb in range(len(c_block)):
+                result += c_block[key[cb]]
+    else:
+        for c in range(0, len(text), block_size):
+            p_block = text[c: (c + block_size)]
+            for pb in range(len(p_block)):
+                for k in range(len(key)):
+                    if pb == key[k]:
+                        result += p_block[k]
+    
+    return [str(key), result]
 
 def playfair_cipher (text, method, key):
     result = ''
@@ -231,7 +245,22 @@ Data = {
         "Description" : "Unlike substitution, this cipher scrambles the message by writing it in a zig-zag pattern across multiple 'rails' and reading it off row by row. It serves as a visual introduction to Transposition—the art of securing information by rearranging its structure rather than changing the characters themselves."
     },
     'Permutation Cipher': {
-        "Code": """""", 
+        "Code": """def permutation_cipher (text, method, block_size, key):
+    result = ''
+    if method == "Encrypt":
+        for t in range(0, len(text), block_size):
+            c_block = text[t: (t + block_size)]
+            for cb in range(len(c_block)):
+                result += c_block[key[cb]]
+    else:
+        for c in range(0, len(text), block_size):
+            p_block = text[c: (c + block_size)]
+            for pb in range(len(p_block)):
+                for k in range(len(key)):
+                    if pb == key[k]:
+                        result += p_block[k]
+    
+    return [str(key), result]""", 
         "Description" : "A mathematical approach to transposition where the message is divided into fixed-size blocks and the characters within each block are reordered based on a specific key. This demonstrates the 'diffusion' principle, a core component of modern encryption like DES and AES."
     },
     'Playfair Cipher': {
@@ -344,11 +373,29 @@ if len(inputText) != 0 :
         else:
             obj = rail_fence_cipher(text, method, key)
     elif option == 'Permutation Cipher':
-        block_size = int(st.number_input('Input block size: ', min_value=2, max_value=len(text)))     
-        key = np.array(range(block_size))
-        r.shuffle(key)
+        block_size = int(st.number_input('Input block size: ', min_value=3, max_value=9)) 
         text_arr = np.append(text, np.repeat(" ", (block_size - (len(text) % block_size))))
-        obj = permutation_cipher(text_arr, block_size, key)
+        st.text(f"Assign a unique rank (1 to {block_size}) to each column position:")
+        cols = st.columns(block_size)
+        key = []
+
+        available_ranks = list(range(1, block_size + 1))
+        for i in range(block_size):
+            with cols[i]:
+                choice = st.selectbox(
+                    f"Position {i+1}",
+                    options=available_ranks,
+                    index=i, 
+                    key=f"perm_pos_{i}"
+                )
+                key.append(choice-1)
+
+        if len(set(key)) != block_size:
+            st.error("Invalid Key: Each number must be used exactly once. Please resolve duplicate selections.")
+        else:
+            st.success("Valid Permutation Key!")
+            
+            obj = permutation_cipher(text_arr, method, block_size, key)
     else:
         key_text = st.text_input('Input a string: ').lower()
         if not (key_text.isalpha() and key_text != '') :
