@@ -166,7 +166,8 @@ Data = {
             result += p
     
     return ['3', result]""", 
-        "Description" : "Historically used by Julius Caesar, this method secures messages by shifting each letter three positions through the alphabet. It stands as a classic demonstration of confidentiality achieved through fixed character rotation."
+        "Description" : "Historically used by Julius Caesar, this method secures messages by shifting each letter three positions through the alphabet. It stands as a classic demonstration of confidentiality achieved through fixed character rotation.",
+        "Analysis": "Because the key is fixed at **k=3**, there is no secret to protect. If an attacker identifies the method as Caesar, the message is decrypted instantly. It offers **security through obscurity** rather than true encryption."
     },
     'Shift Cipher': {
         "Code": """def shift_cipher (text, method, key):
@@ -181,7 +182,8 @@ Data = {
             result += p
     
     return [str(key), result]""", 
-        "Description" : "A generalized Caesar Cipher where the user defines the shift value (Key). It illustrates the fundamental principle of Symmetric Encryption—where the same secret is used to lock and unlock data—and highlights the risks of small key spaces vulnerable to brute-force attacks."
+        "Description" : "A generalized Caesar Cipher where the user defines the shift value (Key). It illustrates the fundamental principle of Symmetric Encryption—where the same secret is used to lock and unlock data—and highlights the risks of small key spaces vulnerable to brute-force attacks.",
+        "Analysis": "Vulnerable to **Frequency Analysis** and **Brute Force**. Since there are only 25 possible keys, an attacker can test every shift in seconds until the plaintext becomes readable."
     },
     'Vigenere Cipher': {
         "Code": """def vigenere_cipher (text, method, block_size, key):
@@ -200,7 +202,8 @@ Data = {
                 result += p
     
     return [str(key), result]""", 
-        "Description" : "A landmark in cryptography, this polyalphabetic substitution cipher uses a keyword to apply different shifts to each letter. By breaking the simple frequency patterns of a single-shift cipher, it introduces the concept of masking data patterns to resist basic cryptanalysis."
+        "Description" : "A landmark in cryptography, this polyalphabetic substitution cipher uses a keyword to apply different shifts to each letter. By breaking the simple frequency patterns of a single-shift cipher, it introduces the concept of masking data patterns to resist basic cryptanalysis.",
+        "Analysis": "While stronger than Caesar, it can be broken using **Kasiski examination** or **Friedman Test** to determine the keyword length."
     },
     'Rail Fence Cipher': {
         "Code": """def rail_fence_cipher (text, method, key):
@@ -242,7 +245,8 @@ Data = {
         result = ''.join(result)
 
     return [str(key), result]""", 
-        "Description" : "Unlike substitution, this cipher scrambles the message by writing it in a zig-zag pattern across multiple 'rails' and reading it off row by row. It serves as a visual introduction to Transposition—the art of securing information by rearranging its structure rather than changing the characters themselves."
+        "Description" : "Unlike substitution, this cipher scrambles the message by writing it in a zig-zag pattern across multiple 'rails' and reading it off row by row. It serves as a visual introduction to Transposition—the art of securing information by rearranging its structure rather than changing the characters themselves.",
+        "Analysis": "**Frequency analysis** of single letters remains identical to the original language. It is easily broken by testing different **depth levels**."
     },
     'Permutation Cipher': {
         "Code": """def permutation_cipher (text, method, block_size, key):
@@ -261,7 +265,8 @@ Data = {
                         result += p_block[k]
     
     return [str(key), result]""", 
-        "Description" : "A mathematical approach to transposition where the message is divided into fixed-size blocks and the characters within each block are reordered based on a specific key. This demonstrates the 'diffusion' principle, a core component of modern encryption like DES and AES."
+        "Description" : "A mathematical approach to transposition where the message is divided into fixed-size blocks and the characters within each block are reordered based on a specific key. This demonstrates the 'diffusion' principle, a core component of modern encryption like DES and AES.",
+        "Analysis": "Vulnerable to **Multiple Anagramming**. If the block size is small, the flow of common letter pairs (digrams) can be reconstructed."
     },
     'Playfair Cipher': {
         "Code": """def playfair_cipher (text, method, key):
@@ -307,13 +312,15 @@ Data = {
             result += c1 + c2
        
     return [str(key), result]""", 
-        "Description" : "The first literal digram substitution cipher, it encrypts pairs of letters using a $5$ x $5$ grid. By encrypting two letters at once, it significantly complicates frequency analysis and represents an early leap toward more complex block-based encryption."
+        "Description" : "The first literal digram substitution cipher, it encrypts pairs of letters using a $5$ x $5$ grid. By encrypting two letters at once, it significantly complicates frequency analysis and represents an early leap toward more complex block-based encryption.",
+        "Analysis": "Harder than simple substitution, but still vulnerable to **frequency analysis of digrams** (pairs of letters)."
     }
 }
 
 # WEBSITE CODE
 st.title("Cryptography Demonstrator")
 st.html("<i>— An interactive tool to learn and explore symmetric key cryptography.</i>")
+
 with st.sidebar:
     option = st.selectbox(
         'Algorithms',
@@ -330,6 +337,8 @@ with st.sidebar:
 st.header(option)
 st.subheader("Description")
 st.write(Data[option]["Description"])
+st.subheader("Vulnerability")
+st.write(Data[option]["Analysis"])
 st.subheader("Live Demonstration")
 
 method = st.selectbox("Method", ("Encrypt", "Decrypt"))
@@ -434,3 +443,13 @@ agree = st.checkbox('View Function Code')
 if agree:
     st.subheader('Demo Code')
     st.code(Data[option]["Code"])
+    st.html("<a href='https://github.com/Nivedhidha-I/Symmetric-Key-Cryptography'>View Source Code (GitHub)</a>")
+
+
+st.markdown("""
+        <small style='color: grey;'>
+        <b>Disclaimer:</b> This tool is for <b>educational purposes only</b>. 
+        Classical ciphers demonstrated here are cryptographically broken and should never 
+        be used to secure sensitive real-world data.
+        </small>
+    """, unsafe_allow_html=True)
