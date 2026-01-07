@@ -89,11 +89,52 @@ def rail_fence_cipher (text, method, key):
 
     return [str(key), result]
 
-def permutation_cipher (text_arr, block_size, key):
+def permutation_cipher (text, method, block_size, key):
     pass
 
-def playfair_cipher (text_arr, key):
-    pass
+def playfair_cipher (text, method, key):
+    result = ''
+    if method == "Encrypt":
+        for t in range(0, len(text), 2):
+            t1 = text[t]
+            res1 = np.where(key == t1)
+            pos1 = list(list(zip(res1[0], res1[1]))[0])
+            t2 = text[t+1]
+            res2 = np.where(key == t2)
+            pos2 = list(list(zip(res2[0], res2[1]))[0])
+            if pos1[0] == pos2[0]:
+                pos1[1] = 0 if (pos1[1] == 4) else pos1[1]+1 
+                pos2[1] = 0 if (pos2[1] == 4) else pos2[1]+1
+            elif pos1[1] == pos2[1]:
+                pos1[0] = 0 if (pos1[0] == 4) else pos1[0]+1 
+                pos2[0] = 0 if (pos2[0] == 4) else pos2[0]+1
+            else:
+                pos1[1], pos2[1] = pos2[1], pos1[1]
+            t1 = key[pos1[0]][pos1[1]]
+            t2 = key[pos2[0]][pos2[1]]
+            result += t1 + t2
+    
+    else:
+        for t in range(0, len(text), 2):
+            c1 = text[t]
+            c2 = text[t+1]
+            res1 = np.where(key == c1)
+            pos1 = list(list(zip(res1[0], res1[1]))[0])
+            res2 = np.where(key == c2)
+            pos2 = list(list(zip(res2[0], res2[1]))[0])
+            if pos1[0] == pos2[0]:
+                pos1[1] = 4 if (pos1[1] == 0) else pos1[1]-1 
+                pos2[1] = 4 if (pos2[1] == 0) else pos2[1]-1
+            elif pos1[1] == pos2[1]:
+                pos1[0] = 4 if (pos1[0] == 0) else pos1[0]-1 
+                pos2[0] = 4 if (pos2[0] == 0) else pos2[0]-1
+            else:
+                pos1[1], pos2[1] = pos2[1], pos1[1]    
+            c1 = key[pos1[0]][pos1[1]]
+            c2 = key[pos2[0]][pos2[1]]
+            result += c1 + c2
+       
+    return [str(key), result]
 
 # STATIC CONTENT
 Data = {
@@ -194,7 +235,49 @@ Data = {
         "Description" : "A mathematical approach to transposition where the message is divided into fixed-size blocks and the characters within each block are reordered based on a specific key. This demonstrates the 'diffusion' principle, a core component of modern encryption like DES and AES."
     },
     'Playfair Cipher': {
-        "Code": """""", 
+        "Code": """def playfair_cipher (text, method, key):
+    result = ''
+    if method == "Encrypt":
+        for t in range(0, len(text), 2):
+            t1 = text[t]
+            res1 = np.where(key == t1)
+            pos1 = list(list(zip(res1[0], res1[1]))[0])
+            t2 = text[t+1]
+            res2 = np.where(key == t2)
+            pos2 = list(list(zip(res2[0], res2[1]))[0])
+            if pos1[0] == pos2[0]:
+                pos1[1] = 0 if (pos1[1] == 4) else pos1[1]+1 
+                pos2[1] = 0 if (pos2[1] == 4) else pos2[1]+1
+            elif pos1[1] == pos2[1]:
+                pos1[0] = 0 if (pos1[0] == 4) else pos1[0]+1 
+                pos2[0] = 0 if (pos2[0] == 4) else pos2[0]+1
+            else:
+                pos1[1], pos2[1] = pos2[1], pos1[1]
+            t1 = key[pos1[0]][pos1[1]]
+            t2 = key[pos2[0]][pos2[1]]
+            result += t1 + t2
+    
+    else:
+        for t in range(0, len(text), 2):
+            c1 = text[t]
+            c2 = text[t+1]
+            res1 = np.where(key == c1)
+            pos1 = list(list(zip(res1[0], res1[1]))[0])
+            res2 = np.where(key == c2)
+            pos2 = list(list(zip(res2[0], res2[1]))[0])
+            if pos1[0] == pos2[0]:
+                pos1[1] = 4 if (pos1[1] == 0) else pos1[1]-1 
+                pos2[1] = 4 if (pos2[1] == 0) else pos2[1]-1
+            elif pos1[1] == pos2[1]:
+                pos1[0] = 4 if (pos1[0] == 0) else pos1[0]-1 
+                pos2[0] = 4 if (pos2[0] == 0) else pos2[0]-1
+            else:
+                pos1[1], pos2[1] = pos2[1], pos1[1]    
+            c1 = key[pos1[0]][pos1[1]]
+            c2 = key[pos2[0]][pos2[1]]
+            result += c1 + c2
+       
+    return [str(key), result]""", 
         "Description" : "The first literal digram substitution cipher, it encrypts pairs of letters using a $5$ x $5$ grid. By encrypting two letters at once, it significantly complicates frequency analysis and represents an early leap toward more complex block-based encryption."
     }
 }
@@ -260,6 +343,36 @@ if len(inputText) != 0 :
             st.error('Input string must have minimum 3 characters.')
         else:
             obj = rail_fence_cipher(text, method, key)
+    elif option == 'Permutation Cipher':
+        block_size = int(st.number_input('Input block size: ', min_value=2, max_value=len(text)))     
+        key = np.array(range(block_size))
+        r.shuffle(key)
+        text_arr = np.append(text, np.repeat(" ", (block_size - (len(text) % block_size))))
+        obj = permutation_cipher(text_arr, block_size, key)
+    else:
+        key_text = st.text_input('Input a string: ').lower()
+        if not (key_text.isalpha() and key_text != '') :
+            st.error('Input string must only contain alphabets.')
+        else:
+            key = np.array([])
+            for kt in key_text:
+                if (kt != 'j') and (kt not in key) :
+                    key = np.append(key, kt)
+            for i in range(97, 123):
+                if chr(i) not in key and chr(i) != 'j':
+                    key = np.append(key, chr(i))
+            key = np.reshape(key, (5,5))
+            
+            textArr = np.array([])
+            for t in range(len(text)):
+                if text[t] == 'j' :
+                    text[t] = 'i'
+                textArr = np.append(textArr, text[t])
+                if t != (len(text) - 1) and text[t] == text[t+1] :
+                    textArr = np.append(textArr, 'x')
+            if len(textArr) % 2 != 0 :
+                textArr = np.append(textArr, 'x')
+            obj = playfair_cipher(textArr, method, key)
     
     if obj != None:
         st.markdown('Output')
